@@ -31,7 +31,7 @@ function renderCalendar() {
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const startOffset = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
 
-  // Пустые ячейки
+  // Пустые ячейки (начало месяца)
   for (let i = 0; i < startOffset; i++) {
     const empty = document.createElement('div');
     empty.className = 'day empty';
@@ -45,24 +45,25 @@ function renderCalendar() {
     const cell = document.createElement('div');
     cell.className = 'day';
 
+    // Подсветка сегодняшнего дня
     if (currentYear === today.getFullYear() && 
         currentMonth === today.getMonth() && 
         day === today.getDate()) {
       cell.classList.add('today');
     }
 
-    // ВСЕГДА добавляем контейнер для иконки (одинаковый размер)
+    // Контейнер для иконки (ВСЕГДА ОДИНАКОВЫЙ)
     const iconContainer = document.createElement('div');
     
     if (iconsByDay[day]) {
-      // Если есть иконка — показываем её
+      // Есть иконка
       iconContainer.className = 'day-icon';
       const img = document.createElement('img');
       img.src = iconsByDay[day];
-      img.alt = "icon";
+      img.alt = "";
       iconContainer.appendChild(img);
     } else {
-      // Если иконки нет — добавляем пустой контейнер ТОГО ЖЕ РАЗМЕРА
+      // Нет иконки — пустой контейнер (невидимый но занимает место)
       iconContainer.className = 'day-icon-empty';
     }
 
@@ -76,7 +77,7 @@ function renderCalendar() {
     calendarDiv.appendChild(cell);
   }
 
-  // Добиваем пустыми
+  // Пустые ячейки (конец месяца)
   const totalCells = startOffset + daysInMonth;
   const remaining = (7 - (totalCells % 7)) % 7;
   for (let i = 0; i < remaining; i++) {
