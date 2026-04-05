@@ -86,7 +86,7 @@ body {
   gap: 6px;
 }
 
-/* ВСЕ ЯЧЕЙКИ ОДИНАКОВЫЕ — фиксированная структура */
+/* ВСЕ ЯЧЕЙКИ СТРОГО ОДИНАКОВЫЕ */
 .day {
   background: var(--card);
   border-radius: 14px;
@@ -95,11 +95,14 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 4px;
+  gap: 4px;
+  padding: 0;
+  /* Фиксируем размеры */
+  min-width: 0;
+  width: 100%;
 }
 
-/* Контейнер для иконки — ВСЕГДА ОДИНАКОВОЙ ВЫСОТЫ */
+/* Контейнер для иконки — фиксированный размер */
 .day-icon {
   display: flex;
   align-items: center;
@@ -107,19 +110,24 @@ body {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
+  margin: 0 auto;
 }
 
 .day-icon img {
   width: 24px;
   height: 24px;
   object-fit: contain;
+  display: block;
 }
 
-/* Пустой контейнер (невидимый, но сохраняет место) */
+/* Пустой контейнер — ТОЧНО ТАКОГО ЖЕ РАЗМЕРА */
 .day-icon-empty {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
+  margin: 0 auto;
+  /* Прозрачный, но занимает место */
+  visibility: hidden;
 }
 
 /* Число */
@@ -127,6 +135,7 @@ body {
   font-size: 12px;
   font-weight: 500;
   line-height: 1.2;
+  text-align: center;
 }
 
 /* Сегодняшний день */
@@ -159,9 +168,8 @@ body {
   }
   
   .day {
-    border-radius: 12px;
-    gap: 4px;
-    padding: 6px 2px;
+    border-radius: 10px;
+    gap: 3px;
   }
   
   .day-icon,
@@ -190,8 +198,8 @@ body {
   }
 }
 
-/* Для телефонов побольше (iPhone Plus, Android) */
-@media (min-width: 400px) {
+/* Для телефонов 400px и выше */
+@media (min-width: 400px) and (max-width: 500px) {
   .weekdays {
     gap: 8px;
     font-size: 13px;
@@ -213,10 +221,41 @@ body {
   }
   
   .day-number {
-    font-size: 13px;
+    font-size: 14px;
   }
   
   #monthTitle {
     font-size: 20px;
+  }
+}
+
+/* Для больших телефонов (Pro Max) */
+@media (min-width: 500px) {
+  .weekdays {
+    gap: 10px;
+    font-size: 14px;
+  }
+  
+  .calendar {
+    gap: 10px;
+  }
+  
+  .day-icon,
+  .day-icon-empty {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .day-icon img {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .day-number {
+    font-size: 15px;
+  }
+  
+  #monthTitle {
+    font-size: 22px;
   }
 }
