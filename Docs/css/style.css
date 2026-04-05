@@ -1,0 +1,203 @@
+:root {
+  --bg: #000;
+  --card: #1c1c1e;
+  --text: #fff;
+  --muted: #888;
+  --accent: #2ecc71;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.app {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Шапка */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.month-nav {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 28px;
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.month-nav:active {
+  background: #2c2c2e;
+}
+
+#monthTitle {
+  font-size: 18px;
+  font-weight: 600;
+  flex: 1;
+  text-align: center;
+}
+
+/* Дни недели */
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--muted);
+  padding: 0 2px;
+}
+
+/* Сетка календаря */
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.day {
+  background: var(--card);
+  border-radius: 14px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 4px;
+  transition: background 0.1s;
+}
+
+.day:active {
+  background: #2a2a2c;
+}
+
+/* Иконка */
+.day-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.day-icon img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* Число */
+.day-number {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Сегодняшний день */
+.day.today {
+  outline: 2px solid var(--accent);
+}
+
+/* Пустые ячейки */
+.day.empty {
+  visibility: hidden;
+}
+
+/* Для самых маленьких телефонов (до 380px) */
+@media (max-width: 380px) {
+  body {
+    padding: 8px;
+  }
+  
+  .app {
+    gap: 10px;
+  }
+  
+  .weekdays {
+    gap: 4px;
+    font-size: 10px;
+  }
+  
+  .calendar {
+    gap: 4px;
+  }
+  
+  .day {
+    border-radius: 12px;
+    gap: 4px;
+    padding: 6px 2px;
+  }
+  
+  .day-icon img {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .day-number {
+    font-size: 10px;
+  }
+  
+  .month-nav {
+    width: 38px;
+    height: 38px;
+    font-size: 24px;
+  }
+  
+  #monthTitle {
+    font-size: 16px;
+  }
+}
+
+/* Для телефонов побольше (iPhone Plus, Android) */
+@media (min-width: 400px) {
+  .weekdays {
+    gap: 8px;
+    font-size: 13px;
+  }
+  
+  .calendar {
+    gap: 8px;
+  }
+  
+  .day-icon img {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .day-number {
+    font-size: 13px;
+  }
+  
+  #monthTitle {
+    font-size: 20px;
+  }
+}
