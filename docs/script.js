@@ -51,16 +51,22 @@ function renderCalendar() {
       cell.classList.add('today');
     }
 
+    // ВСЕГДА добавляем контейнер для иконки (одинаковый размер)
     const iconContainer = document.createElement('div');
-    iconContainer.className = 'day-icon';
     
     if (iconsByDay[day]) {
+      // Если есть иконка — показываем её
+      iconContainer.className = 'day-icon';
       const img = document.createElement('img');
       img.src = iconsByDay[day];
       img.alt = "icon";
       iconContainer.appendChild(img);
+    } else {
+      // Если иконки нет — добавляем пустой контейнер ТОГО ЖЕ РАЗМЕРА
+      iconContainer.className = 'day-icon-empty';
     }
 
+    // Число
     const numberSpan = document.createElement('div');
     numberSpan.className = 'day-number';
     numberSpan.textContent = day;
