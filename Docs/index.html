@@ -1,57 +1,43 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>Подписки — Календарь оплат</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Календарь</title>
+  
+  <!-- Meta для мобильных -->
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Календарь">
+  <meta name="format-detection" content="telephone=no">
+  
+  <!-- Манифест -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Иконки -->
+  <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
+  <link rel="apple-touch-icon" href="images/icon-192.png">
+  <link rel="shortcut icon" href="images/favicon.ico">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="app-container">
-    <div class="header">
-        <div class="title-section">
-            <h1>Календарь подписок</h1>
-            <p>Когда платить? Все в одном месте</p>
-        </div>
-        <div class="month-year" id="monthYearDisplay">Март 2026</div>
+  <div class="app">
+    <div class="calendar-header">
+      <button class="month-nav" id="prevMonthBtn">←</button>
+      <div id="monthTitle"></div>
+      <button class="month-nav" id="nextMonthBtn">→</button>
     </div>
 
     <div class="weekdays">
-        <div class="weekday">ПН</div><div class="weekday">ВТ</div><div class="weekday">СР</div>
-        <div class="weekday">ЧТ</div><div class="weekday">ПТ</div><div class="weekday">СБ</div>
-        <div class="weekday">ВС</div>
+      <div>ПН</div><div>ВТ</div><div>СР</div><div>ЧТ</div><div>ПТ</div><div>СБ</div><div>ВС</div>
     </div>
 
-    <div class="calendar-grid" id="calendarGrid"></div>
+    <div class="calendar" id="calendar"></div>
+  </div>
 
-    <div class="subscription-panel" id="subscriptionPanel">
-        <div class="panel-title">
-            📆 Подписки на <span id="selectedDateLabel"></span>
-        </div>
-        <div id="subscriptionsListContainer" class="subscriptions-list"></div>
-    </div>
-
-    <div class="add-button">
-        <button class="btn-add" id="openModalBtn">➕ Добавить подписку</button>
-    </div>
-    <footer>Нажми на день — увидишь оплаты</footer>
-</div>
-
-<div id="modal" class="modal">
-    <div class="modal-card">
-        <h3>Новая подписка</h3>
-        <input type="text" id="subName" placeholder="Название, например Netflix" autocomplete="off">
-        <input type="number" id="subPrice" placeholder="Стоимость (₽)" step="any">
-        <select id="subDaySelect">
-            <option value="" disabled selected>— день списания —</option>
-        </select>
-        <div class="modal-actions">
-            <button class="btn-cancel" id="cancelModalBtn">Отмена</button>
-            <button class="btn-confirm" id="confirmAddBtn">Сохранить</button>
-        </div>
-    </div>
-</div>
-
-<script src="script.js"></script>
+  <script src="js/calendar.js"></script>
 </body>
 </html>
