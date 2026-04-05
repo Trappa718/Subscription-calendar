@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Подписки — Календарь оплат</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #F9FAFE;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', 'Inter', sans-serif;
+            padding: 20px 16px 40px;
+            color: #1C1E24;
+        }
+
+        /* основной контейнер — как карточка приложения */
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #FFFFFF;
+            border-radius: 40px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05), 0 0 0 0.5px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            padding: 24px 20px 32px;
+        }
+
+        /* заголовок */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+        .title-section h1 {
+            font-size: 28px;
+            font-weight: 620;
+            letter-spacing: -0.3px;
+            color: #0B0C10;
+        }
+        .title-section p {
+            font-size: 14px;
+            color: #8E94A2;
+            margin-top: 4px;
+            font-weight: 470;
+        }
+        .month-year {
+            background: #F2F4F8;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 15px;
+            color: #1E293B;
+        }
+
+        /* сетка дней недели */
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .weekday {
+            font-size: 14px;
+            font-weight: 500;
+            color: #7C7F8C;
+            padding: 8px 0;
+            letter-spacing: -0.2px;
+        }
+
+        /* календарная сетка */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            row-gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        /* ячейка дня */
+        .day-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #FFFFFF;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 16px;
+            color: #1E293B;
+            transition: all 0.1s ease;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid #EDF0F4;
+            background: #FFFFFF;
+        }
+        /* пустые ячейки (для дней соседних месяцев) */
+        .day-cell.empty {
+            background: #FCFCFD;
+            border-color: #F0F2F6;
+            color: #C2C7D0;
+            cursor: default;
+        }
+        /* номер дня */
+        .day-number {
+            font-size: 17px;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+        /* индикатор подписки — маленький кружок снизу */
+        .subscription-dot {
+            width: 6px;
+            height: 6px;
+            background: #FF5A5F;
+            border-radius: 10px;
+            margin-top: 4px;
+            transition: 0.1s;
+        }
+        .subscription-dot.multiple {
+            background: #FF8C42;
+            width: 8px;
+            height: 8px;
+            box-shadow: 0 0 0 1px white;
+        }
+        /* если несколько подписок — покажем два цвета / стиль */
+        .badge-multi {
+            font-size: 9px;
+            font-weight: 600;
+            background: #FFE4E0;
+            color: #D43F31;
+            border-radius: 30px;
+            padding: 1px 6px;
+            margin-top: 3px;
+            line-height: 1.2;
+        }
+        /* активный/выбранный день */
+        .day-cell.selected {
+            background: #F1F4FE;
+            border-color: #B7C9F0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            transform: scale(0.98);
+        }
+
+        /* панель подписок на выбранный день */
+        .subscription-panel {
+            margin-top: 12px;
+            background: #F8F9FD;
+            border-radius: 32px;
+            padding: 20px;
+            transition: 0.2s;
+            border: 1px solid #EBEFF5;
+        }
+        .panel-title {
+            font-weight: 600;
+            font-size: 17px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #0F172A;
+        }
+        .panel-title span {
+            background: #EFF3FA;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .subscriptions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .sub-item {
+            background: white;
+            border-radius: 24px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            border: 1px solid #EFF2F9;
+            transition: all 0.15s;
+        }
+        .sub-icon {
+            width: 44px;
+            height: 44px;
+            background: #F2F5FC;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 500;
+        }
+        .sub-info {
+            flex: 1;
+        }
+        .sub-name {
+            font-weight: 620;
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: #141B2B;
+        }
+        .sub-price {
+            font-size: 14px;
+            color: #4F5A6F;
+            font-weight: 470;
+        }
+        .sub-date-badge {
+            font-size: 13px;
+            background: #EEF3FC;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-weight: 500;
+            color: #2C3E66;
+        }
+        .empty-subscriptions {
+            text-align: center;
+            padding: 28px 12px;
+            color: #9AA2B5;
+            font-size: 15px;
+            font-weight: 470;
+        }
+        /* кнопка добавления */
+        .add-button {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .btn-add {
+            background: #1C2C4C;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 60px;
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            width: auto;
+        }
+        .btn-add:active {
+            transform: scale(0.96);
+            background: #111C33;
+        }
+        /* модальное окно (простое) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: white;
+            width: 85%;
+            max-width: 340px;
+            border-radius: 44px;
+            padding: 28px 24px 32px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2);
+            text-align: left;
+        }
+        .modal-card h3 {
+            font-size: 22px;
+            font-weight: 620;
+            margin-bottom: 20px;
+        }
+        .modal-card input, .modal-card select {
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            border: 1px solid #E2E8F0;
+            border-radius: 30px;
+            font-size: 16px;
+            font-family: inherit;
+            background: #FEFEFE;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 60px;
+            border: none;
+            font-weight: 500;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn-confirm {
+            background: #1C2C4C;
+            color: white;
+        }
+        .btn-cancel {
+            background: #F0F2F5;
+            color: #2D3A4B;
+        }
+        footer {
+            margin-top: 16px;
+            font-size: 11px;
+            text-align: center;
+            color: #B4BCCC;
+        }
+        @media (max-width: 450px) {
+            .app-container {
+                padding: 20px 16px 28px;
+            }
+            .day-cell {
+                font-size: 14px;
+            }
+            .sub-item {
+                padding: 12px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <div class="title-section">
+            <h1>Календарь подписок</h1>
+            <p>Когда платить? Все в одном месте</p>
+        </div>
+        <div class="month-year" id="monthYearDisplay">Март 2026</div>
+    </div>
+
+    <!-- дни недели -->
+    <div class="weekdays">
+        <div class="weekday">ПН</div><div class="weekday">ВТ</div><div class="weekday">СР</div>
+        <div class="weekday">ЧТ</div><div class="weekday">ПТ</div><div class="weekday">СБ</div>
+        <div class="weekday">ВС</div>
+    </div>
+
+    <!-- календарная сетка -->
+    <div class="calendar-grid" id="calendarGrid"></div>
+
+    <!-- панель с подписками выбранного дня -->
+    <div class="subscription-panel" id="subscriptionPanel">
+        <div class="panel-title">
+            📆 Подписки на <span id="selectedDateLabel"></span>
+        </div>
+        <div id="subscriptionsListContainer" class="subscriptions-list">
+            <!-- динамически -->
+        </div>
+    </div>
+
+    <div class="add-button">
+        <button class="btn-add" id="openModalBtn">➕ Добавить подписку</button>
+    </div>
+    <footer>Нажми на день — увидишь оплаты</footer>
+</div>
+
+<!-- модальное окно добавления подписки -->
+<div id="modal" class="modal">
+    <div class="modal-card">
+        <h3>Новая подписка</h3>
+        <input type="text" id="subName" placeholder="Название, например Netflix" autocomplete="off">
+        <input type="number" id="subPrice" placeholder="Стоимость (₽)" step="any">
+        <select id="subDaySelect">
+            <option value="" disabled selected>— день списания —</option>
+        </select>
+        <div class="modal-actions">
+            <button class="btn-cancel" id="cancelModalBtn">Отмена</button>
+            <button class="btn-confirm" id="confirmAddBtn">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- УПРАВЛЕНИЕ ПОДПИСКАМИ (localStorage) ----------
+    let subscriptions = []; // каждый объект: { id, name, price, dayOfMonth }
+
+    // Загрузка из localStorage
+    function loadSubscriptions() {
+        const stored = localStorage.getItem('subscription_calendar_app');
+        if (stored) {
+            try {
+                subscriptions = JSON.parse(stored);
+            } catch(e) { subscriptions = []; }
+        }
+        // для демонстрации, если пусто — добавим пару примеров, чтобы календарь не был пустым
+        if (subscriptions.length === 0) {
+            subscriptions = [
+                { id: Date.now() + 1, name: "YouTube Premium", price: 399, dayOfMonth: 8 },
+                { id: Date.now() + 2, name: "Apple Music", price: 169, dayOfMonth: 13 },
+                { id: Date.now() + 3, name: "Кинопоиск", price: 299, dayOfMonth: 22 },
+                { id: Date.now() + 4, name: "PS Plus", price: 599, dayOfMonth: 28 }
+            ];
+            saveSubscriptions();
+        }
+    }
+
+    function saveSubscriptions() {
+        localStorage.setItem('subscription_calendar_app', JSON.stringify(subscriptions));
+    }
+
+    // добавить подписку
+    function addSubscription(name, price, day) {
+        if (!name.trim()) name = "Без названия";
+        const priceNum = parseFloat(price);
+        const finalPrice = isNaN(priceNum) ? 0 : priceNum;
+        const newSub = {
+            id: Date.now(),
+            name: name.trim(),
+            price: finalPrice,
+            dayOfMonth: parseInt(day)
+        };
+        subscriptions.push(newSub);
+        saveSubscriptions();
+        renderAll(); // перерисовка календаря и панели
+    }
+
+    function deleteSubscription(id) {
+        subscriptions = subscriptions.filter(sub => sub.id !== id);
+        saveSubscriptions();
+        renderAll();
+    }
+
+    // -------- КАЛЕНДАРЬ (текущий месяц: март 2026, но можно сделать динамическим) ----------
+    // по макету визуально похоже на март, но в реальном приложении удобно сделать текущую дату.
+    // однако для точного соответствия "2,3,4...31" как на картинке, но с днями недели.
+    // В картинке: месяц начинается с понедельника 2 марта? 1 марта 2026 — воскресенье, тогда понедельник 2.
+    // Используем динамический месяц: текущий год и месяц, но добавим кнопки? Для простоты сделаем показ текущего месяца (год/месяц).
+    // Но чтобы дни соответствовали макету и подписки работали — корректно отображаем сетку на основе реальной даты.
+    // Но можно зафиксировать март 2026? Лучше динамический: сегодняшний месяц, но пользователь сможет смотреть.
+    // Для удобства, добавим простые стрелки? По условию "календарь подписок" — без усложнения, но дадим возможность переключать месяц (небольшой плюс).
+    // Но макет статичный, но добавим переключение месяцев для удобства тестирования.
+    
+    let currentYear = 2026;
+    let currentMonth = 2; // 0-индекс: март = 2 (чтобы показать данные как на картинке, изначально март 2026)
+    // Но чтобы показать числа 2,3,4...31 — для марта 2026 это идеально: 1 марта воскресенье.
+    // Сетка: ПН первый день — 2 марта. Так и будет.
+    
+    let selectedDay = null; // храним выбранную дату { year, month, dayNumber }
+    
+    function getDaysInMonth(year, month) {
+        return new Date(year, month + 1, 0).getDate();
+    }
+    
+    function getFirstDayIndex(year, month) {
+        // возвращает индекс дня недели для 1-го числа (0 = понедельник, 6 = воскресенье)
+        let firstDay = new Date(year, month, 1);
+        let dayOfWeek = firstDay.getDay(); // 0 вс, 1 пн ... 6 сб
+        // преобразуем: нам нужно где 0(вс) => 6 (воскресенье в конце), пн => 0, вт=>1, сб=>5
+        if (dayOfWeek === 0) return 6; // воскресенье становится индекс 6
+        return dayOfWeek - 1; // пн -> 0, вт->1, ср->2, чт->3, пт->4, сб->5
+    }
+    
+    function buildCalendar(year, month) {
+        const daysInMonth = getDaysInMonth(year, month);
+        const firstDayIndex = getFirstDayIndex(year, month); // сколько пустых ячеек перед 1 числом
+        const totalCells = 42; // 6 строк
+        const calendarDays = [];
+        const prevMonthDays = getDaysInMonth(year, month - 1);
+        
+        for (let i = 0; i < totalCells; i++) {
+            let dayNumber = null;
+            let isCurrentMonth = true;
+            let cellMonth = month;
+            let cellYear = year;
+            
+            if (i < firstDayIndex) {
+                // предыдущий месяц
+                const prevDate = prevMonthDays - (firstDayIndex - i) + 1;
+                dayNumber = prevDate;
+                isCurrentMonth = false;
+                let prevMonth = month - 1;
+                let prevYear = year;
+                if (prevMonth < 0) {
+                    prevMonth = 11;
+                    prevYear = year - 1;
+                }
+                cellMonth = prevMonth;
+                cellYear = prevYear;
+            } else if (i >= firstDayIndex + daysInMonth) {
+                // следующий месяц
+                const nextIndex = i - (firstDayIndex + daysInMonth);
+                dayNumber = nextIndex + 1;
+                isCurrentMonth = false;
+                let nextMonth = month + 1;
+                let nextYear = year;
+                if (nextMonth > 11) {
+                    nextMonth = 0;
+                    nextYear = year + 1;
+                }
+                cellMonth = nextMonth;
+                cellYear = nextYear;
+            } else {
+                dayNumber = i - firstDayIndex + 1;
+                isCurrentMonth = true;
+                cellMonth = month;
+                cellYear = year;
+            }
+            
+            // подписки, привязанные к этому дню (только по дню месяца, без привязки к году, но для календаря: подписка считается если день месяца совпадает)
+            // В реальных подписках день списания не зависит от года, поэтому показываем на каждом месяце если день совпадает.
+            const subsForDay = subscriptions.filter(sub => sub.dayOfMonth === dayNumber);
+            calendarDays.push({
+                dayNumber,
+                isCurrentMonth,
+                fullDate: { year: cellYear, month: cellMonth, day: dayNumber },
+                hasSubscriptions: subsForDay.length > 0,
+                subscriptionsCount: subsForDay.length,
+                subsList: subsForDay
+            });
+        }
+        return calendarDays;
+    }
+    
+    function renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        const monthYearDisplay = document.getElementById('monthYearDisplay');
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        monthYearDisplay.innerText = `${monthNames[currentMonth]} ${currentYear}`;
+        
+        const daysData = buildCalendar(currentYear, currentMonth);
+        grid.innerHTML = '';
+        
+        daysData.forEach((cell, idx) => {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'day-cell';
+            if (!cell.isCurrentMonth) {
+                dayDiv.classList.add('empty');
+            }
+            // если выбранная дата совпадает
+            const isSelected = (selectedDay && selectedDay.year === cell.fullDate.year && 
+                                selectedDay.month === cell.fullDate.month && 
+                                selectedDay.day === cell.fullDate.day);
+            if (isSelected) dayDiv.classList.add('selected');
+            
+            const numberSpan = document.createElement('div');
+            numberSpan.className = 'day-number';
+            numberSpan.innerText = cell.dayNumber;
+            dayDiv.appendChild(numberSpan);
+            
+            if (cell.hasSubscriptions) {
+                if (cell.subscriptionsCount === 1) {
+                    const dot = document.createElement('div');
+                    dot.className = 'subscription-dot';
+                    dayDiv.appendChild(dot);
+                } else if (cell.subscriptionsCount >= 2) {
+                    const multiBadge = document.createElement('div');
+                    multiBadge.className = 'badge-multi';
+                    multiBadge.innerText = `${cell.subscriptionsCount}`;
+                    dayDiv.appendChild(multiBadge);
+                }
+            }
+            
+            dayDiv.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!cell.isCurrentMonth) {
+                    // если клик по пустой ячейке соседнего месяца — переключим месяц для удобства
+                    if (cell.fullDate.month !== currentMonth || cell.fullDate.year !== currentYear) {
+                        currentMonth = cell.fullDate.month;
+                        currentYear = cell.fullDate.year;
+                        // сбросим selected на null, но после перерисовки выберем этот же день
+                        selectedDay = null;
+                        renderCalendar();
+                        // после перерисовки вызовем выбор дня
+                        setTimeout(() => {
+                            // Найдем актуальную дату и выберем
+                            const newSelected = { year: cell.fullDate.year, month: cell.fullDate.month, day: cell.dayNumber };
+                            selectedDay = newSelected;
+                            renderCalendar();
+                            renderSubscriptionsPanel(selectedDay);
+                        }, 0);
+                    } else {
+                        // просто выберем соседний день текущего отображения? не нужно
+                        selectedDay = { year: cell.fullDate.year, month: cell.fullDate.month, day: cell.dayNumber };
+                        renderCalendar();
+                        renderSubscriptionsPanel(selectedDay);
+                    }
+                } else {
+                    selectedDay = { year: cell.fullDate.year, month: cell.fullDate.month, day: cell.dayNumber };
+                    renderCalendar();
+                    renderSubscriptionsPanel(selectedDay);
+                }
+            });
+            
+            grid.appendChild(dayDiv);
+        });
+        
+        // если selectedDay не существует, выберем текущий день (если есть в этом месяце) или первый день с подпиской, либо первый день месяца.
+        if (!selectedDay) {
+            const today = new Date();
+            if (today.getFullYear() === currentYear && today.getMonth() === currentMonth) {
+                selectedDay = { year: currentYear, month: currentMonth, day: today.getDate() };
+            } else {
+                // выберем 1 число текущего месяца
+                selectedDay = { year: currentYear, month: currentMonth, day: 1 };
+            }
+            renderSubscriptionsPanel(selectedDay);
+        } else {
+            renderSubscriptionsPanel(selectedDay);
+        }
+    }
+    
+    function renderSubscriptionsPanel(dateObj) {
+        if (!dateObj) return;
+        const { year, month, day } = dateObj;
+        const monthNamesLocal = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+        const label = `${day} ${monthNamesLocal[month]} ${year}`;
+        document.getElementById('selectedDateLabel').innerText = label;
+        
+        // подписки, привязанные к этому дню месяца (игнорируем год, так как подписки ежемесячные)
+        const daySubs = subscriptions.filter(sub => sub.dayOfMonth === day);
+        const container = document.getElementById('subscriptionsListContainer');
+        if (daySubs.length === 0) {
+            container.innerHTML = `<div class="empty-subscriptions">✨ Нет платежей на этот день<br>Нажмите «+», чтобы добавить</div>`;
+            return;
+        }
+        
+        container.innerHTML = '';
+        daySubs.forEach(sub => {
+            const subDiv = document.createElement('div');
+            subDiv.className = 'sub-item';
+            const iconLetter = sub.name.charAt(0).toUpperCase();
+            subDiv.innerHTML = `
+                <div class="sub-icon">${iconLetter}</div>
+                <div class="sub-info">
+                    <div class="sub-name">${escapeHtml(sub.name)}</div>
+                    <div class="sub-price">${sub.price > 0 ? sub.price + ' ₽' : 'Бесплатно'}</div>
+                </div>
+                <div class="sub-date-badge">${sub.dayOfMonth} число</div>
+                <button class="delete-sub-btn" data-id="${sub.id}" style="background: none; border: none; font-size: 20px; cursor: pointer; color:#9E9E9E;">🗑️</button>
+            `;
+            container.appendChild(subDiv);
+        });
+        
+        // вешаем обработчики удаления
+        document.querySelectorAll('.delete-sub-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                if (confirm('Удалить подписку?')) {
+                    deleteSubscription(id);
+                }
+            });
+        });
+    }
+    
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    function renderAll() {
+        renderCalendar();
+    }
+    
+    // ----- modal logic + заполнение выбора дня
+    function populateDaySelect() {
+        const select = document.getElementById('subDaySelect');
+        select.innerHTML = '<option value="" disabled selected>— день списания —</option>';
+        for (let i = 1; i <= 31; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.innerText = `${i} число`;
+            select.appendChild(option);
+        }
+    }
+    
+    // инициализация модалки
+    const modal = document.getElementById('modal');
+    const openBtn = document.getElementById('openModalBtn');
+    const cancelBtn = document.getElementById('cancelModalBtn');
+    const confirmBtn = document.getElementById('confirmAddBtn');
+    
+    openBtn.addEventListener('click', () => {
+        document.getElementById('subName').value = '';
+        document.getElementById('subPrice').value = '';
+        const daySelect = document.getElementById('subDaySelect');
+        daySelect.value = '';
+        modal.style.display = 'flex';
+    });
+    
+    cancelBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    
+    confirmBtn.addEventListener('click', () => {
+        const name = document.getElementById('subName').value;
+        const price = document.getElementById('subPrice').value;
+        const day = document.getElementById('subDaySelect').value;
+        if (!day) {
+            alert('Выберите день списания');
+            return;
+        }
+        addSubscription(name, price, day);
+        modal.style.display = 'none';
+    });
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+    });
+    
+    // инициализация стрелок для переключения месяца (добавим удобно, но не ломая дизайн)
+    // добавим кнопки в шапку? но на макете их нет, но для функциональности хорошо.
+    // без кнопок переключения — сложно, сделаем скрытое управление двойным тапом или добавим аккуратно
+    // добавим две небольшие кнопки рядом с месяцем, чтобы не портить дизайн.
+    const monthHeaderDiv = document.getElementById('monthYearDisplay');
+    const parentHeader = document.querySelector('.header');
+    const navDiv = document.createElement('div');
+    navDiv.style.display = 'flex';
+    navDiv.style.gap = '12px';
+    navDiv.style.alignItems = 'center';
+    const prevBtn = document.createElement('button');
+    prevBtn.innerText = '◀';
+    prevBtn.style.background = '#F0F2F5';
+    prevBtn.style.border = 'none';
+    prevBtn.style.borderRadius = '30px';
+    prevBtn.style.width = '36px';
+    prevBtn.style.height = '36px';
+    prevBtn.style.fontSize = '18px';
+    prevBtn.style.cursor = 'pointer';
+    const nextBtn = document.createElement('button');
+    nextBtn.innerText = '▶';
+    nextBtn.style.cssText = prevBtn.style.cssText;
+    navDiv.appendChild(prevBtn);
+    navDiv.appendChild(nextBtn);
+    // вставим после monthYearDisplay
+    monthHeaderDiv.parentNode.insertBefore(navDiv, monthHeaderDiv.nextSibling);
+    
+    prevBtn.addEventListener('click', () => {
+        let newMonth = currentMonth - 1;
+        let newYear = currentYear;
+        if (newMonth < 0) {
+            newMonth = 11;
+            newYear--;
+        }
+        currentMonth = newMonth;
+        currentYear = newYear;
+        selectedDay = null;
+        renderAll();
+    });
+    
+    nextBtn.addEventListener('click', () => {
+        let newMonth = currentMonth + 1;
+        let newYear = currentYear;
+        if (newMonth > 11) {
+            newMonth = 0;
+            newYear++;
+        }
+        currentMonth = newMonth;
+        currentYear = newYear;
+        selectedDay = null;
+        renderAll();
+    });
+    
+    loadSubscriptions();
+    populateDaySelect();
+    // по умолчанию выставим 2026 март для приятного старта, но если текущая дата далеко — пусть март
+    // но чтобы красиво: currentYear = 2026, currentMonth = 2 (март)
+    currentYear = 2026;
+    currentMonth = 2; // март
+    selectedDay = null;
+    renderAll();
+</script>
+</body>
+</html>
